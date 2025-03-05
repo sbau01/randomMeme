@@ -50,117 +50,58 @@
     <!-- Main JavaScript File -->
     <script>
 
-		class RedditMemeFetcher {
-			constructor() {
-				// List of subreddits for memes
-				this.memeSubreddits = [
-					'memes', 
-					'dankmemes', 
-					'wholesomememes', 
-					'programmerhumor'
-				];
-			}
-			/**
-			 * Fetch a random meme using Reddit's JSON API
-			 * @returns {Promise<Object>} Meme details
-			 */
-			async fetchRandomMeme() {
-				try {
-					// Randomly select a subreddit
-					const subreddit = this.getRandomSubreddit();
-					
-					// Fetch with no-cors mode
-					const response = await fetch('https://www.reddit.com/r/memes/top/.json?limit=50');
+            async function fetchRandomMeme() {
+                try {
+                    // Fetch from a popular meme subreddit
+                    const response = await fetch('https://www.reddit.com/r/memes/top/.json?limit=100');
+                    
+                    // Check if the fetch was successful
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch memes');
+                    }
+                    
+                    // Parse the JSON response
+                    const data = await response.json();
+                    
+                    // Extract the list of posts
+                    const posts = data.data.children;
+                    
+                    // Randomly select a meme
+                    const randomPost = posts[Math.floor(Math.random() * posts.length)].data;
+                    
+                    // Return meme details
+                    return {
+                        title: randomPost.title,
+                        imageUrl: randomPost.url_overridden_by_dest || randomPost.url,
+                        subreddit: randomPost.subreddit,
+                        upvotes: randomPost.ups,
+                        author: randomPost.author
+                    };
+                } catch (error) {
+                    console.error('Error fetching meme:', error);
+                    return null;
+                }
+            }
 
-					console.error(response);
-					
-					// Important: No-cors mode significantly limits response handling
-					console.warn('No-CORS mode restricts full response access');
-					
-					if (!response.ok) {
-						throw new Error('Failed to fetch memes');
-					}
+            async function displayRandomMeme() {
+                try {
+                    const meme = await fetchRandomMeme();
+                    
+                    if (meme) {
+                        console.log('Meme Title:', meme.title);
+                        console.log('Meme URL:', meme.imageUrl);
+                        console.log('Subreddit:', meme.subreddit);
+                        console.log('Upvotes:', meme.upvotes);
+                        console.log('Author:', meme.author);
+                    }
+                } catch (error) {
+                    console.error('Error displaying meme:', error);
+                }
+            }
 
-					const data = await response.json();
-					
-					// Filter for image posts
-					const memePosts = data.data.children
-						.filter(post => 
-							post.data.url_overridden_by_dest && 
-							(post.data.url_overridden_by_dest.endsWith('.jpg') || 
-							post.data.url_overridden_by_dest.endsWith('.png') || 
-							post.data.url_overridden_by_dest.endsWith('.gif'))
-						);
+            // Call the function to fetch and display a random meme
+            displayRandomMeme();
 
-					// Select a random meme from filtered posts
-					if (memePosts.length === 0) {
-						throw new Error('No image memes found');
-					}
-
-					const randomMeme = memePosts[Math.floor(Math.random() * memePosts.length)].data;
-
-					return {
-						title: 'Unable to fetch due to CORS restrictions',
-						url: 'fallback-image.jpg',
-						error: error.message
-					};
-
-				} catch (error) {
-					console.error('Meme Fetch Error:', error);
-					throw error;
-				}
-			}
-
-			/**
-			 * Get a random subreddit from the list
-			 * @returns {string} Selected subreddit
-			 */
-			getRandomSubreddit() {
-				return this.memeSubreddits[
-					Math.floor(Math.random() * this.memeSubreddits.length)
-				];
-			}
-
-			/**
-			 * Add a new subreddit to the list
-			 * @param {string} subreddit - Subreddit name
-			 */
-			addSubreddit(subreddit) {
-				if (!this.memeSubreddits.includes(subreddit)) {
-					this.memeSubreddits.push(subreddit);
-				}
-			}
-		}
-        // Main application logic
-        document.addEventListener('DOMContentLoaded', () => {
-			const memeFetcher = new RedditMemeFetcher();
-			const memeImage = document.getElementById('memeImg');
-			const fetchButton = document.getElementById('actionButton');
-
-			async function updateMeme() {
-				try {
-					// Show loading state
-					memeImage.src = 'loading.gif';
-
-					// Fetch meme
-					const meme = await memeFetcher.fetchRandomMeme();
-
-					// Update UI
-					memeImage.src = meme.url;
-					memeImage.alt = meme.title;
-
-				} catch (error) {
-					// Error handling
-					console.error('Meme Fetch Error:', error.messag);
-				}
-			}
-
-			// Initial meme load
-			updateMeme();
-
-			// Fetch new meme on button click
-			fetchButton.addEventListener('click', updateMeme);
-		});
 
     </script>
 
