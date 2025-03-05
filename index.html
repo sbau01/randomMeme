@@ -70,7 +70,7 @@
 					const subreddit = this.getRandomSubreddit();
 					
 					// Fetch with no-cors mode
-					const response = await fetch(`https://www.reddit.com/r/${subreddit}/top.json?limit=50`, {
+					const response = await fetch(`https://www.reddit.com/r/memes/top.json?limit=50`, {
 						method: 'GET',
 						mode: 'no-cors', // Important modification
 						headers: {
