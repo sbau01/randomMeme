@@ -86,6 +86,8 @@
             async function displayRandomMeme() {
                 try {
                     const meme = await fetchRandomMeme();
+
+                    const memeImage = document.getElementById('memeImg');
                     
                     if (meme) {
                         console.log('Meme Title:', meme.title);
@@ -93,14 +95,23 @@
                         console.log('Subreddit:', meme.subreddit);
                         console.log('Upvotes:', meme.upvotes);
                         console.log('Author:', meme.author);
+
+                        memeImage.src = meme.imageUrl;
+                        memeImage.alt = meme.title;
                     }
                 } catch (error) {
                     console.error('Error displaying meme:', error);
                 }
             }
 
+            document.addEventListener('DOMContentLoaded', () => {
+                const fetchButton = document.getElementById('actionButton');
+
+                // Fetch new meme on button click
+                fetchButton.addEventListener('click', displayRandomMeme());
+            });
+
             // Call the function to fetch and display a random meme
-            displayRandomMeme();
 
 
     </script>
