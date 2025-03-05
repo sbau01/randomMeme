@@ -49,11 +49,20 @@
 
     <!-- Main JavaScript File -->
     <script>
-
-            async function fetchRandomMeme() {
+        class RedditMemeFetcher {
+			constructor() {
+				// List of subreddits for memes
+				this.memeSubreddits = [
+					'memes', 
+					'dankmemes', 
+					'wholesomememes', 
+					'programmerhumor'
+				];
+			}
+            async fetchRandomMeme() {
                 try {
                     // Fetch from a popular meme subreddit
-                    const response = await fetch('https://www.reddit.com/r/memes/top/.json?limit=100');
+                    const response = await fetch(`https://www.reddit.com/r/${subreddit}/top.json?limit=50`);
                     
                     // Check if the fetch was successful
                     if (!response.ok) {
@@ -83,13 +92,33 @@
                 }
             }
 
+            /**
+			 * Get a random subreddit from the list
+			 * @returns {string} Selected subreddit
+			 */
+			getRandomSubreddit() {
+				return this.memeSubreddits[
+					Math.floor(Math.random() * this.memeSubreddits.length)
+				];
+			}
+
+			/**
+			 * Add a new subreddit to the list
+			 * @param {string} subreddit - Subreddit name
+			 */
+			addSubreddit(subreddit) {
+				if (!this.memeSubreddits.includes(subreddit)) {
+					this.memeSubreddits.push(subreddit);
+				}
+			}
+		}
+
             async function displayRandomMeme() {
                 try {
-                    const meme = await fetchRandomMeme();
+                    const memeFetcher = new RedditMemeFetcher();
+                    const meme = await memeFetcher.fetchRandomMeme();
 
                     const memeImage = document.getElementById('memeImg');
-
-                    console.log('test');
                     
                     if (meme) {
                         console.log('Meme Title:', meme.title);
